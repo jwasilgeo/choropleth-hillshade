@@ -29,6 +29,6 @@ Inspired by:
 
 Authors of this tool:
 * Jacob Wasilkowski | Esri St. Louis
-* Jie Cheng | UMASS Medical School GIS Data Analyst
+* Jie Cheng | UMASS Medical School
 
 Note: This PYT requires ArcGIS for Desktop 10.1 SP1 or higher, with access to either the Spatial Analyst or 3D Analyst extension.
