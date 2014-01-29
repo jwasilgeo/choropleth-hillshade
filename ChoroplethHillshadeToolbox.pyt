@@ -2,7 +2,7 @@
     Name:       ChoroplethHillshade
 
     Authors:    Jacob Wasilkowski | Esri St. Louis
-                Jie Cheng
+                Jie Cheng | UMASS Medical School
 
     Notes:      Generates a hillshaded raster surface for choropleth maps.
                 Inspired by:
