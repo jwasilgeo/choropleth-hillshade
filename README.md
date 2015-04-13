@@ -21,14 +21,18 @@ Raster cell size and overall shadow length are set as tool params.  Compare the 
 
 ![Shadow6](docs/Shadow6.png)
 
-Inspired by:
-
+#### Inspiration:
 * Stewart, James and Kennelly, Patrick J. (2010).
 ["Illuminated Choropleth Maps"](http://www.tandfonline.com/doi/abs/10.1080/00045608.2010.485449#.UtWdcp5dXzh).
 *Annals of the Association of American Geographers*, 100(3): 513-534.
 
-Authors of this tool:
+#### Authors:
 * Jacob Wasilkowski | Esri St. Louis
 * Jie Cheng | UMASS Medical School
 
-Note: This PYT requires ArcGIS for Desktop 10.1 SP1 or higher, with access to either the Spatial Analyst or 3D Analyst extension.
+#### Contributing:
+Find something wrong or have an idea for a new feature? We welcome submitting new issues and requests.
+
+#### Other info:
+* Software: This PYT requires ArcGIS for Desktop 10.1 SP1 or higher, with access to either the Spatial Analyst or 3D Analyst extension.
+* License: MIT. More info [here](LICENSE).
