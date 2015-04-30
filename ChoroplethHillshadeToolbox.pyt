@@ -13,12 +13,17 @@
 
                 Requires ArcGIS for Desktop 10.1 SP1 or higher.
 
-    Created:    01 December 2012
-    Modified:   26 January 2014
+    Created:    December 2012
+    Modified:   April 2015
 '''
 
-import arcpy, decimal, math, sys
+import arcpy
+import decimal
+import math
+import sys
+
 arcpy.env.overwriteOutput = True
+
 
 def parameter(displayName, name, datatype, parameterType='Required', direction='Input', multiValue=False):
     param = arcpy.Parameter(
@@ -35,6 +40,7 @@ def parameter(displayName, name, datatype, parameterType='Required', direction='
 class Toolbox(object):
     def __init__(self):
         self.label =  'Choropleth Hillshade Toolbox'
+        self.canRunInBackground = False
         #list of tool classes associated with this toolbox
         self.tools = [ChoroplethHillshade]
 
@@ -47,11 +53,11 @@ class ChoroplethHillshade(object):
                 '"Illuminated Choropleth Maps".</br>'
                 'Annals of the Association of American Geographers, 100(3): 513-534.</br>')
         self.parameters = [
-            parameter('Input Polygon Features', 'inputFC', 'Feature Class'),
+            parameter('Input Polygon Features', 'inputFC', 'GPFeatureLayer'),
             parameter('Input Field', 'inputField', 'Field'),
-            parameter('Raster Cell Size', 'rasterCellSize', 'Double'),
-            parameter('Shadow Level', 'shadowLevel', 'Long'),
-            parameter('Output Raster', 'outputRaster', 'Raster Dataset', direction='Output')
+            parameter('Raster Cell Size (decimal degrees, such as "0.1" or "0,1", depending on locale)', 'rasterCellSize', 'GPDouble'),
+            parameter('Shadow Level', 'shadowLevel', 'GPLong'),
+            parameter('Output Raster', 'outputRaster', 'DERasterDataset', direction='Output')
         ]
 
 
@@ -61,8 +67,6 @@ class ChoroplethHillshade(object):
         self.parameters[1].parameterDependencies = [self.parameters[0].name]
         self.parameters[3].filter.type = 'Range'
         self.parameters[3].filter.list = [1, 10]
-        #self.parameters[4].parameterDependencies = [inputFC.name]
-        #self.parameters[4].schema.clone = True
 
         return self.parameters
 
@@ -165,7 +169,7 @@ class ChoroplethHillshade(object):
 
             #create in-memory copy of input for new field calculation
             arcpy.AddMessage('Creating in-memory copy of input polygon features\n')
-            inputInMemory = r'in_memory/inputFeature'
+            inputInMemory = r'{0}/inputFeature'.format('in_memory')
             arcpy.management.CopyFeatures(inputFCProjCheck, inputInMemory)
 
             #create a new attribute table field and calculate 'height' values based on Stewart & Kennelley (2010) eq.3
@@ -196,26 +200,31 @@ class ChoroplethHillshade(object):
             #copy the first raster to scaled 8-bit format to forcefully include background values
             #(the raster background extent is necessary for edge shadows)
             ## TO DO: expand the bbox extents to account for long edge shadows
-            arcpy.management.CopyRaster(featToRas, r'in_memory/featToRas_copy', pixel_type='8_BIT_UNSIGNED', scale_pixel_value='ScalePixelValue')
+            featToRasCopy = r'{0}/featToRasCopy'.format('in_memory')
+            arcpy.management.CopyRaster(featToRas, featToRasCopy, pixel_type='8_BIT_UNSIGNED', scale_pixel_value='ScalePixelValue')
 
             #calculate the scaled zFactor for the Hillshade tool
             arcpy.AddMessage('Calculating scaled z-factor for hillshading\n')
-            zFactorHillshade = zFactorScaling(shadowLevel, r'in_memory/featToRas_copy')
+            zFactorHillshade = zFactorScaling(shadowLevel, featToRasCopy)
 
             #hillshade & focal stats
             if spatialAnalystCheckedOut:    #if Spatial Analyst available, use Hillshade and Focal Stats
                 arcpy.AddMessage('Creating hillshade\n')
-                hillshade = arcpy.sa.Hillshade(r'in_memory/featToRas_copy', '315', '45', 'SHADOWS', zFactorHillshade)
-                hillshade.save(r'in_memory/hillshade')
+                hillshade = arcpy.sa.Hillshade(featToRasCopy, '315', '45', 'SHADOWS', zFactorHillshade)
+                hillshadeFilePath = r'{0}/hillshade'.format(arcpy.env.scratchGDB)
+                hillshade.save(hillshadeFilePath)
 
                 arcpy.AddMessage('Performing focal statistics\n')
                 neighborhood = arcpy.sa.NbrRectangle(3, 3, 'CELL')
-                focalStats = arcpy.sa.FocalStatistics(r'in_memory/hillshade', neighborhood, 'MEAN', 'DATA')
+                focalStats = arcpy.sa.FocalStatistics(hillshadeFilePath, neighborhood, 'MEAN', 'DATA')
                 focalStats.save(outputRaster)
 
             else:   #otherwise, use Hillshade and skip Focal Stats
                 arcpy.AddMessage('Creating hillshade\n')
-                arcpy.HillShade_3d(r'in_memory/featToRas_copy', outputRaster, '315', '45', 'SHADOWS', zFactorHillshade)
+                arcpy.HillShade_3d(featToRasCopy, outputRaster, '315', '45', 'SHADOWS', zFactorHillshade)
+
+            arcpy.management.Delete(featToRas)
+            arcpy.management.Delete('in_memory')
 
             return
 
