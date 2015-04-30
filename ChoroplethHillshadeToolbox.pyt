@@ -181,11 +181,11 @@ class ChoroplethHillshade(object):
             attrValues = set()  # initalize empty set
             with arcpy.da.SearchCursor(inputInMemory, [inputField]) as searchCursor:
                 for row in searchCursor:
-                    attrValues.add(row[0])      # only add unique values to set
-            fieldMax = float(max(attrValues))   # identify max attribute value
+                    attrValues.add(abs(row[0]))  # only add unique values to set
+            fieldMax = float(max(attrValues))    # identify max attribute value
 
             # execute field calculation of new heights
-            expression = '0.0025 * pow((!{0}!)/{1}), 0.455) * {1}'.format(inputField, fieldMax)
+            expression = '0.0025 * pow((abs(!{0}!)/{1}), 0.455) * {1}'.format(inputField, fieldMax)
             arcpy.management.CalculateField(inputInMemory, height_SK, expression, 'PYTHON_9.3')
 
             # convert input polygon features to raster
