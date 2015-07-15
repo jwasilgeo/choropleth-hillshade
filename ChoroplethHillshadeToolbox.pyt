@@ -56,7 +56,7 @@ class ChoroplethHillshade(object):
             parameter('Input Polygon Features', 'inputFC', 'GPFeatureLayer'),
             parameter('Input Field', 'inputField', 'Field'),
             parameter('Raster Cell Size (decimal degrees, such as "0.1" or "0,1", depending on locale)', 'rasterCellSize', 'GPDouble'),
-            parameter('Shadow Level', 'shadowLevel', 'GPLong'),
+            parameter('Shadow Level (integer or decimal, such as "0.5" or "0,5", "1", "2", "5", and so on)', 'shadowLevel', 'GPLong'),
             parameter('Output Raster', 'outputRaster', 'DERasterDataset', direction='Output')
         ]
 
@@ -64,8 +64,6 @@ class ChoroplethHillshade(object):
         # additional parameter properties
         self.parameters[0].filter.list = ['Polygon']
         self.parameters[1].parameterDependencies = [self.parameters[0].name]
-        self.parameters[3].filter.type = 'Range'
-        self.parameters[3].filter.list = [1, 10]
 
         return self.parameters
 
