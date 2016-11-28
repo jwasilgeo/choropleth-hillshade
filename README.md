@@ -1,6 +1,8 @@
 #Choropleth Hillshade
 ###A Python Geoprocessing Toolbox for ArcGIS
 
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 Generates a hillshaded raster surface for choropleth maps.  But why?
 * Show off your within-class variability!
 * Enable thematic maps to have more than _just_ 2 dimensions.
