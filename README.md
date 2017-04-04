@@ -1,5 +1,5 @@
-#Choropleth Hillshade
-###A Python Geoprocessing Toolbox for ArcGIS
+# Choropleth Hillshade
+### A Python Geoprocessing Toolbox for ArcGIS
 
 [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
